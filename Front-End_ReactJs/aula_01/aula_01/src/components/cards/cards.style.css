@@ -1,0 +1,29 @@
+.card{
+    background-color: #2c2b30;
+    overflow: hidden;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: .5rem;
+    width: 13rem;
+}
+.card-img{
+    object-fit: cover;
+    height: 13rem;
+}
+.img{
+    height: 13rem;
+}
+
+.card-title{
+    font-weight: 600;
+    color: whitesmoke;
+    font-size: 1rem;
+}
+.card-text{
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding: 0.5rem;
+}
