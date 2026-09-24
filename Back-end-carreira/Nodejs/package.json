@@ -6,7 +6,8 @@
   "scripts": {
     "dev-base": "nodemon ./src/modulos/aula03/server-base.js",
     "dev-express": "nodemon ./src/modulos/aula04/server.js",
-    "dev-mongo": "nodemon ./src/modulos/aula05/server.js"
+    "dev-mongo": "nodemon ./src/modulos/aula05/server.js",
+    "dev-search": "nodemon ./src/modulos/aula06/server.js"
   },
   "keywords": [],
   "author": "",
@@ -19,5 +20,10 @@
     "mongodb": "^7.6.0",
     "mongoose": "^9.10.1",
     "nodemon": "^3.1.14"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0"
   }
 }
