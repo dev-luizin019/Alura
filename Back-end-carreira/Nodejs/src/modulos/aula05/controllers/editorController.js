@@ -1,19 +1,34 @@
 import mongoose from "mongoose";
-import { editor } from "../models/Editor.js";
+import { editor } from "../models/index.js";
 import { appError } from "../error/appError.js";
+import getFilter from "../utils/getFilters.js";
 
 const Editor = editor;
 
 export class EditorController {
   static async getAllEditor(req, res, next) {
     try {
-      const editors = await Editor.find({});
+      const { skip, limit, page, sort } = req.pagination;
+      const busca = await getFilter(req.query);
 
-      if (editors.length === 0) {
+      const [resultEditors, totalItens] = await Promise.all([
+        editor.find(busca).sort(sort).skip(skip).limit(limit).exec(),
+        editor.countDocuments(busca),
+      ]);
+
+      if (resultEditors.length === 0) {
         return next(new appError(401, "Nenhum editor encontrado!"));
       }
 
-      res.status(201).json(editors);
+      res.status(201).json({
+        info: {
+          totalItens,
+          totalPage: Math.ceil(totalItens / limit),
+          currentPage: page,
+          linesPerPage: limit,
+        },
+        data: resultEditors,
+      });
     } catch (error) {
       next(error);
     }

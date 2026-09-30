@@ -1,9 +1,10 @@
 import express from "express"
 import { EditorController } from "../controllers/editorController.js"
+import { paginationMiddleware } from "../middlewares/pagination.middleware.js"
 
 const editorRoutes = express.Router()
 
-editorRoutes.get("/editor", EditorController.getAllEditor)
+editorRoutes.get("/editor",paginationMiddleware, EditorController.getAllEditor)
 
 editorRoutes.post("/editor", EditorController.saveEditor)
 

@@ -1,6 +1,7 @@
+import mongoose from "mongoose";
 import { appError } from "../error/appError.js";
-import { editor } from "../models/Editor.js";
-import livro from "../models/Livro.js";
+import { editor, livro } from "../models/index.js";
+import getFilter from "../utils/getFilters.js";
 
 export class LivrosController {
   static async getAllBooks(req, res, next) {
@@ -101,7 +102,7 @@ export class LivrosController {
       const { author, price } = req.query;
 
       const query = {};
-      if (author) query.author = author;
+      if (author) query.author = { $regex: author, $options: "i" };
       if (price) query.price = Number(price);
 
       const books = await livro.find(query);
@@ -113,6 +114,68 @@ export class LivrosController {
       res.status(200).json(books);
     } catch (error) {
       return next(error);
+    }
+  }
+  static async getBookByFilter(req, res, next) {
+    try {
+      const { skip, limit, sort, page } = req.pagination;
+      const busca = await getFilter(req.query);
+
+      const [resultBooks, totalItens] = await Promise.all([
+        livro
+          .find(busca)
+          .sort(sort)
+          .skip(skip)
+          .limit(limit)
+          .populate("editor")
+          .exec(),
+        livro.countDocuments(busca),
+      ]);
+
+      if (!resultBooks) {
+        return next(new appError(404, "Nenhum livro encontrado"));
+      }
+
+      res.status(200).json({
+        info: {
+          totalItens,
+          totalPages: Math.ceil(totalItens / limit),
+          currentPage: page,
+          linesPerPage: limit,
+        },
+        data: resultBooks,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async getFromPagintation(req, res, next) {
+    try {
+      const {
+        limit = 10,
+        page = 1,
+        ordemField = "title",
+        ordem = 1,
+      } = req.query;
+
+      if ((limit < 0, page < 0)) {
+        next(new appError(500, "Erro de busca"));
+      }
+
+      const resultBook = await livro
+        .find()
+        .sort({ [ordemField]: Number(ordem) })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate("editor")
+        .exec();
+      if (!resultBook) {
+        next(new appError(404, "Nenhum livro na lista"));
+      }
+
+      res.status(200).json({ message: resultBook });
+    } catch (error) {
+      next(error);
     }
   }
 }
